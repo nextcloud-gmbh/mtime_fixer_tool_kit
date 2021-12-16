@@ -1,5 +1,10 @@
 # mtime correction tool kit
 
+## Limitations
+
+- Only checks for files with mtime === -3600
+- Only works with MariaDB
+
 ## `unsolvable_files.sh`
 
 This script lists files that can not be fixed by the `solvable_files.sh` script. For example files on an external storage.
