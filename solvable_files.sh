@@ -17,7 +17,7 @@ then
 	exit 1
 fi
 
-# 1. Return if fs mtime != -3600
+# 1. Return if fs mtime <= 86400
 # 2. Compute username from filepath
 # 3. Query mtime from the database with the filename and the username
 # 4. Return if mtime_on_fs != mtime_in_db
@@ -29,7 +29,7 @@ function correct_mtime() {
 	relative_filepath="${filepath//$data_dir/}"
 	mtime_on_fs="$(stat -c '%Y' "$filepath")"
 
-	if [ "$mtime_on_fs" != '-3600' ]
+	if [ "$mtime_on_fs" -le '86400' ]
 	then
 		return
 	fi
