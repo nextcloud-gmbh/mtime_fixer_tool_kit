@@ -22,7 +22,7 @@ fi
 # 3. Query mtime from the database with the filename and the username
 # 4. Return if mtime_on_fs != mtime_in_db
 # 5. Correct the fs mtime with touch
-# 6. Run occ files:scan on the file
+# Commented out ~~6. Run occ files:scan on the file~~
 function correct_mtime() {
 	filepath="$1"
 	filename="$(basename "$filepath")"
@@ -82,7 +82,7 @@ function correct_mtime() {
 	if [ "$action" = "fix" ]
 	then
 		touch --no-create "$filepath"
-		php ./occ --quiet files:scan --path "$relative_filepath"
+		# php ./occ --quiet files:scan --path "$relative_filepath"
 	fi
 }
 export -f correct_mtime
