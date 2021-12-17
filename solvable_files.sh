@@ -29,7 +29,7 @@ function correct_mtime() {
 	relative_filepath="${filepath//$data_dir/}"
 	mtime_on_fs="$(stat -c '%Y' "$filepath")"
 
-	if [ "$mtime_on_fs" -le '86400' ]
+	if [ "$mtime_on_fs" -gt '86400' ]
 	then
 		return
 	fi
