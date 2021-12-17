@@ -73,6 +73,11 @@ function correct_mtime() {
 			)
 	fi
 
+	if [ "$mtime_in_db" == "" ]
+	then
+		return
+	fi
+
 	if [ "$mtime_in_db" != "$mtime_on_fs" ]
 	then
 		echo "mtime in database do not match fs mtime (fs: $mtime_on_fs, db: $mtime_in_db). Skipping $filepath"
