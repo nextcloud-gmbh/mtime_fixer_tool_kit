@@ -18,5 +18,5 @@ mysql \
 	--execute="\
 SELECT CONCAT(oc_storages.id, '/', oc_filecache.path) \
 FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-WHERE oc_filecache.mtime='-3600'" \
+WHERE oc_filecache.mtime<='86400'" \
 	"$db_table"
