@@ -40,6 +40,8 @@ function correct_mtime() {
 		username=$(dirname "$username")
 	done
 
+	relative_filepath="${relative_filepath//$username\//}"
+
 	if [ "$username" == "__groupfolders" ]
 	then
 		mtime_in_db=$(
@@ -52,7 +54,7 @@ function correct_mtime() {
 				--execute="\
 					SELECT mtime
 					FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-					WHERE oc_storages.id='local::$data_dir' AND oc_filecache.name='$filename'" \
+					WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='$relative_filepath'" \
 				"$db_table"
 			)
 	else
@@ -66,7 +68,7 @@ function correct_mtime() {
 				--execute="\
 					SELECT mtime
 					FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-					WHERE oc_storages.id='home::$username' AND oc_filecache.name='$filename'" \
+					WHERE oc_storages.id='home::$username' AND oc_filecache.path='$relative_filepath'" \
 				"$db_table"
 			)
 	fi
