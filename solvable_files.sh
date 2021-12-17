@@ -29,7 +29,7 @@ function correct_mtime() {
 	relative_filepath="${filepath//$data_dir/}"
 	mtime_on_fs="$(stat -c '%Y' "$filepath")"
 
-	if [ "$mtime_on_fs" -le '86400' ]
+	if [ "$mtime_on_fs" -gt '86400' ]
 	then
 		return
 	fi
@@ -39,6 +39,8 @@ function correct_mtime() {
 	do
 		username=$(dirname "$username")
 	done
+
+	relative_filepath="${relative_filepath//$username\//}"
 
 	if [ "$username" == "__groupfolders" ]
 	then
@@ -52,7 +54,7 @@ function correct_mtime() {
 				--execute="\
 					SELECT mtime
 					FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-					WHERE oc_storages.id='local::$data_dir' AND oc_filecache.name='$filename'" \
+					WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='$relative_filepath'" \
 				"$db_table"
 			)
 	else
@@ -66,9 +68,14 @@ function correct_mtime() {
 				--execute="\
 					SELECT mtime
 					FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-					WHERE oc_storages.id='home::$username' AND oc_filecache.name='$filename'" \
+					WHERE oc_storages.id='home::$username' AND oc_filecache.path='$relative_filepath'" \
 				"$db_table"
 			)
+	fi
+
+	if [ "$mtime_in_db" == "" ]
+	then
+		return
 	fi
 
 	if [ "$mtime_in_db" != "$mtime_on_fs" ]
@@ -87,4 +94,4 @@ function correct_mtime() {
 }
 export -f correct_mtime
 
-find "$data_dir" -type f -exec bash -c 'correct_mtime "$0"' {} \;
+find "$data_dir" -type f ! -newermt "@86400" -exec bash -c 'correct_mtime "$0"' {} \;
