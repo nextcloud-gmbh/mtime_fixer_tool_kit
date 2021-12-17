@@ -25,8 +25,7 @@ fi
 # Commented out ~~6. Run occ files:scan on the file~~
 function correct_mtime() {
 	filepath="$1"
-	filename="$(basename "$filepath")"
-	relative_filepath="${filepath//$data_dir/}"
+	relative_filepath="${filepath/#$data_dir/}"
 	mtime_on_fs="$(stat -c '%Y' "$filepath")"
 
 	if [ "$mtime_on_fs" -gt '86400' ]
@@ -40,7 +39,7 @@ function correct_mtime() {
 		username=$(dirname "$username")
 	done
 
-	relative_filepath="${relative_filepath//$username\//}"
+	relative_filepath_without_username="${relative_filepath/#$username\//}"
 
 	if [ "$username" == "__groupfolders" ]
 	then
@@ -54,7 +53,7 @@ function correct_mtime() {
 				--execute="\
 					SELECT mtime
 					FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-					WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='$relative_filepath'" \
+					WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='$relative_filepath_without_username'" \
 				"$db_table"
 			)
 	else
@@ -68,7 +67,7 @@ function correct_mtime() {
 				--execute="\
 					SELECT mtime
 					FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-					WHERE oc_storages.id='home::$username' AND oc_filecache.path='$relative_filepath'" \
+					WHERE oc_storages.id='home::$username' AND oc_filecache.path='$relative_filepath_without_username'" \
 				"$db_table"
 			)
 	fi
