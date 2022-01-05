@@ -14,13 +14,7 @@ fi
 
 function check_file() {
 	filepath="$1"
-	mtime_on_fs="$(stat -c '%Y' "$filepath")"
-	relative_filepath="${filepath//$data_dir/}"
-
-	if [ "$mtime_on_fs" -gt '86400' ]
-	then
-		return
-	fi
+	relative_filepath="${filepath/#$data_dir\//}"
 
 	username=$relative_filepath
 	while [ "$(dirname "$username")" != "." ]
@@ -37,4 +31,4 @@ function check_file() {
 }
 export -f check_file
 
-find "$data_dir" -type f -exec bash -c 'check_file "$0"' {} \;
+find "$data_dir" -type f ! -newermt "@86400" -exec bash -c 'check_file "$0"' {} \;

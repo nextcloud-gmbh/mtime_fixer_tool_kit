@@ -2,14 +2,15 @@
 
 set -eu
 
-# Usage: ./solvable_files.sh <data_dir> <db_host> <db_user> <db_pwd> <db_table> <fix,list>
+# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_table> <fix,list>
 
 export data_dir="$1"
-export db_host="$2"
-export db_user="$3"
-export db_pwd="$4"
-export db_table="$5"
-export action="${6:-list}"
+export db_type="$2"
+export db_host="$3"
+export db_user="$4"
+export db_pwd="$5"
+export db_table="$6"
+export action="${7:-list}"
 
 if [ "${data_dir:0:1}" != "/" ]
 then
@@ -22,16 +23,10 @@ fi
 # 3. Query mtime from the database with the filename and the username
 # 4. Return if mtime_on_fs != mtime_in_db
 # 5. Correct the fs mtime with touch
-# Commented out ~~6. Run occ files:scan on the file~~
 function correct_mtime() {
 	filepath="$1"
-	relative_filepath="${filepath/#$data_dir/}"
+	relative_filepath="${filepath/#$data_dir\//}"
 	mtime_on_fs="$(stat -c '%Y' "$filepath")"
-
-	if [ "$mtime_on_fs" -gt '86400' ]
-	then
-		return
-	fi
 
 	username=$relative_filepath
 	while [ "$(dirname "$username")" != "." ]
@@ -43,33 +38,63 @@ function correct_mtime() {
 
 	if [ "$username" == "__groupfolders" ]
 	then
-		mtime_in_db=$(
-			mysql \
-				--skip-column-names \
-				--silent \
-				--host="$db_host" \
-				--user="$db_user" \
-				--password="$db_pwd" \
-				--execute="\
-					SELECT mtime
-					FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-					WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='$relative_filepath_without_username'" \
-				"$db_table"
+		if [ "$db_type" == "mysql" ]
+		then
+			mtime_in_db=$(
+				mysql \
+					--skip-column-names \
+					--silent \
+					--host="$db_host" \
+					--user="$db_user" \
+					--password="$db_pwd" \
+					--execute="\
+						SELECT mtime
+						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
+						WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='$relative_filepath_without_username'" \
+					"$db_table"
 			)
+		elif [ "$db_type" == "pgsql" ]
+		then
+			mtime_in_db=$(
+				psql \
+					"postgresql://$db_user:$db_pwd@$db_host/$db_table" \
+					--tuples-only \
+					--no-align \
+					--command="\
+						SELECT mtime
+						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
+						WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='$relative_filepath_without_username'"
+			)
+		fi
 	else
-		mtime_in_db=$(
-			mysql \
-				--skip-column-names \
-				--silent \
-				--host="$db_host" \
-				--user="$db_user" \
-				--password="$db_pwd" \
-				--execute="\
-					SELECT mtime
-					FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-					WHERE oc_storages.id='home::$username' AND oc_filecache.path='$relative_filepath_without_username'" \
-				"$db_table"
+		if [ "$db_type" == "mysql" ]
+		then
+			mtime_in_db=$(
+				mysql \
+					--skip-column-names \
+					--silent \
+					--host="$db_host" \
+					--user="$db_user" \
+					--password="$db_pwd" \
+					--execute="\
+						SELECT mtime
+						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
+						WHERE oc_storages.id='home::$username' AND oc_filecache.path='$relative_filepath_without_username'" \
+					"$db_table"
 			)
+		elif [ "$db_type" == "pgsql" ]
+		then
+			mtime_in_db=$(
+				psql \
+					"postgresql://$db_user:$db_pwd@$db_host/$db_table" \
+					--tuples-only \
+					--no-align \
+					--command="\
+						SELECT mtime
+						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
+						WHERE oc_storages.id='home::$username' AND oc_filecache.path='$relative_filepath_without_username'"
+			)
+		fi
 	fi
 
 	if [ "$mtime_in_db" == "" ]
@@ -88,7 +113,6 @@ function correct_mtime() {
 	if [ "$action" = "fix" ]
 	then
 		touch --no-create "$filepath"
-		# php ./occ --quiet files:scan --path "$relative_filepath"
 	fi
 }
 export -f correct_mtime
