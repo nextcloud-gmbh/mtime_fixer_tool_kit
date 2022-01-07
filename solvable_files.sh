@@ -47,6 +47,7 @@ function correct_mtime() {
 					--host="$db_host" \
 					--user="$db_user" \
 					--password="$db_pwd" \
+					--default-character-set=utf8 \
 					--execute="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
@@ -60,6 +61,7 @@ function correct_mtime() {
 					"postgresql://$db_user:$db_pwd@$db_host/$db_table" \
 					--tuples-only \
 					--no-align \
+					-E 'UTF-8' \
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
@@ -76,6 +78,7 @@ function correct_mtime() {
 					--host="$db_host" \
 					--user="$db_user" \
 					--password="$db_pwd" \
+					--default-character-set=utf8 \
 					--execute="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
@@ -89,6 +92,7 @@ function correct_mtime() {
 					"postgresql://$db_user:$db_pwd@$db_host/$db_table" \
 					--tuples-only \
 					--no-align \
+					-E 'UTF-8' \
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
