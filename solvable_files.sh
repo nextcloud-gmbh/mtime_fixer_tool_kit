@@ -35,8 +35,7 @@ function correct_mtime() {
 	done
 
 	relative_filepath_without_username="${relative_filepath/#$username\//}"
-	relative_filepath_without_username_escaped=`echo $relative_filepath_without_username | sed "s/\"/\\\\\\\\\"/g"`
-	relative_filepath_without_username_base64encoded=$(echo -n $relative_filepath_without_username | base64)
+	base64_relative_filepath_without_username="$(printf '%s' "$relative_filepath_without_username" | base64)"
 
 	if [ "$username" == "__groupfolders" ]
 	then
@@ -53,7 +52,7 @@ function correct_mtime() {
 					--execute="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path=FROM_BASE64(\"$relative_filepath_without_username_base64encoded\")" \
+						WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath_without_username')" \
 					"$db_table"
 			)
 		elif [ "$db_type" == "pgsql" ]
@@ -67,7 +66,7 @@ function correct_mtime() {
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path=\"$relative_filepath_without_username_escaped\""
+						WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='CONVERT_FROM(DECODE($base64_relative_filepath_without_username, 'base64'), 'UTF-8')'"
 			)
 		fi
 	else
@@ -84,7 +83,7 @@ function correct_mtime() {
 					--execute="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='home::$username' AND oc_filecache.path=FROM_BASE64(\"$relative_filepath_without_username_base64encoded\")" \
+						WHERE oc_storages.id='home::$username' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath_without_username')" \
 					"$db_table"
 			)
 		elif [ "$db_type" == "pgsql" ]
@@ -98,7 +97,7 @@ function correct_mtime() {
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='home::$username' AND oc_filecache.path=\"$relative_filepath_without_username_escaped\""
+						WHERE oc_storages.id='home::$username' AND oc_filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath_without_username', 'base64'), 'UTF-8')"
 			)
 		fi
 	fi
