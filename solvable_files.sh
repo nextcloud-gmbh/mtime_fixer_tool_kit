@@ -2,7 +2,7 @@
 
 set -eu
 
-# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_table> <fix,list>
+# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_table> <fix,list> <scan,noscan>
 
 export data_dir="$1"
 export db_type="$2"
@@ -11,6 +11,7 @@ export db_user="$4"
 export db_pwd="$5"
 export db_table="$6"
 export action="${7:-list}"
+export scan_action="${8:-noscan}"
 
 if [ "${data_dir:0:1}" != "/" ]
 then
@@ -118,6 +119,10 @@ function correct_mtime() {
 	if [ "$action" == "fix" ]
 	then
 		touch --no-create "$filepath"
+		if [ "$scan_action" = "scan" ]
+		then
+			sudo -u www-data php ./occ files:scan --quiet --path="$relative_filepath"
+		fi
 	fi
 }
 export -f correct_mtime
