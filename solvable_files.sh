@@ -115,7 +115,7 @@ function correct_mtime() {
 
 	echo "$filepath"
 
-	if [ "$action" = "fix" ]
+	if [ "$action" == "fix" ]
 	then
 		touch --no-create "$filepath"
 	fi
