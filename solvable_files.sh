@@ -28,6 +28,7 @@ function correct_mtime() {
 	filepath="$1"
 	relative_filepath="${filepath/#$data_dir\//}"
 	mtime_on_fs="$(stat -c '%Y' "$filepath")"
+	data_dir_with_trailing_slash="$data_dir/"
 
 	username=$relative_filepath
 	while [ "$(dirname "$username")" != "." ]
@@ -37,6 +38,7 @@ function correct_mtime() {
 
 	relative_filepath_without_username="${relative_filepath/#$username\//}"
 	base64_relative_filepath_without_username="$(printf '%s' "$relative_filepath_without_username" | base64)"
+	base64_relative_filepath="$(printf '%s' "$relative_filepath" | base64)"
 
 	if [ "$username" == "__groupfolders" ]
 	then
@@ -53,7 +55,7 @@ function correct_mtime() {
 					--execute="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath_without_username')" \
+						WHERE oc_storages.id='local::$data_dir_with_trailing_slash' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath')" \
 					"$db_table"
 			)
 		elif [ "$db_type" == "pgsql" ]
@@ -67,7 +69,7 @@ function correct_mtime() {
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir' AND oc_filecache.path='CONVERT_FROM(DECODE($base64_relative_filepath_without_username, 'base64'), 'UTF-8')'"
+						WHERE oc_storages.id='local::$data_dir_with_trailing_slash' AND oc_filecache.path='CONVERT_FROM(DECODE($base64_relative_filepath, 'base64'), 'UTF-8')'"
 			)
 		fi
 	else
