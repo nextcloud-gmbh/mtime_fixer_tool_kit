@@ -14,20 +14,20 @@ It compares files found in the database with files found in on the server's file
 ### Usage
 
 ```shell
-./unsolvable_files.sh <data_dir> <db_host> <db_user> <db_pwd> <db_table>
+./unsolvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_table>
 ```
 
 ### Output
 
 ```shell
-$ ./unsolvable_files.sh "$PWD/data/" localhost nextcloud password nextcloud
+$ ./unsolvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud
 local::/home/louis/nextcloud_external//(test).md
 local::/home/louis/nextcloud_external//test".md
 local::/home/louis/nextcloud_external//test.md
 ```
 
 ```shell
-$ ./unsolvable_files.sh "$PWD/data/" localhost nextcloud password nextcloud | wc -l
+$ ./unsolvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud | wc -l
 3
 ```
 
@@ -59,13 +59,13 @@ Group folders are handled specially by checking if the username equal `__groupfo
 ### Usage
 
 ```shell
-./solvable_files.sh <data_dir> <db_host> <db_user> <db_pwd> <db_table> <fix,list>
+./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_table> [<fix|list>] [<scan|noscan>]
 ```
 
 ### Output
 
 ```shell
-$ ./solvable_files.sh "$PWD/data/" localhost nextcloud password nextcloud list
+$ ./solvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud
 /home/louis/workspace/nextcloud/server/data/__groupfolders/1/(test).md
 /home/louis/workspace/nextcloud/server/data/__groupfolders/1/test".md
 /home/louis/workspace/nextcloud/server/data/__groupfolders/1/test.md
@@ -79,6 +79,6 @@ $ ./solvable_files.sh "$PWD/data/" localhost nextcloud password nextcloud list
 ```
 
 ```shell
-$ ./server/mtime_scripts/solvable_files.sh "$PWD/server/data/" localhost nextcloud password nextcloud  | wc -l
+$ ./server/mtime_scripts/solvable_files.sh "$PWD/server/data/" mysql localhost nextcloud password nextcloud | wc -l
 10
 ```
