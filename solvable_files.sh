@@ -2,14 +2,14 @@
 
 set -eu
 
-# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_table> <fix,list> <scan,noscan>
+# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name> <fix,list> <scan,noscan>
 
 export data_dir="$(realpath "$1")"
 export db_type="$2"
 export db_host="$3"
 export db_user="$4"
 export db_pwd="$5"
-export db_table="$6"
+export db_name="$6"
 export action="${7:-list}"
 export scan_action="${8:-noscan}"
 
@@ -63,7 +63,7 @@ function correct_mtime() {
 		then
 			mtime_in_db=$(
 				psql \
-					"postgresql://$db_user:$db_pwd@$db_host/$db_table" \
+					"postgresql://$db_user:$db_pwd@$db_host/$db_name" \
 					--tuples-only \
 					--no-align \
 					-E 'UTF-8' \
@@ -88,13 +88,13 @@ function correct_mtime() {
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
 						WHERE oc_storages.id='home::$username' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath_without_username')" \
-					"$db_table"
+					"$db_name"
 			)
 		elif [ "$db_type" == "pgsql" ]
 		then
 			mtime_in_db=$(
 				psql \
-					"postgresql://$db_user:$db_pwd@$db_host/$db_table" \
+					"postgresql://$db_user:$db_pwd@$db_host/$db_name" \
 					--tuples-only \
 					--no-align \
 					-E 'UTF-8' \
