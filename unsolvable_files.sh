@@ -4,7 +4,7 @@ set -eu
 
 # Usage: ./unsolvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_table>
 
-export data_dir="$1"
+export data_dir="$(realpath "$1")"
 export db_type="$2"
 export db_host="$3"
 export db_user="$4"

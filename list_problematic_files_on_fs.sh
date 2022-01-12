@@ -4,7 +4,7 @@ set -eu
 
 # Usage: ./list_problematic_files_on_fs.sh <data_dir>
 
-export data_dir="$1"
+export data_dir="$(realpath "$1")"
 
 if [ "${data_dir:0:1}" != "/" ]
 then
@@ -24,7 +24,8 @@ function check_file() {
 
 	if [ "$username" == "__groupfolders" ]
 	then
-		echo "local::$data_dir/$relative_filepath"
+		# Two // to match the DB output.
+		echo "local::$data_dir//$relative_filepath"
 	else
 		echo "home::$relative_filepath"
 	fi
