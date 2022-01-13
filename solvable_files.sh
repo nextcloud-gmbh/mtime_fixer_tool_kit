@@ -121,7 +121,7 @@ function correct_mtime() {
 
 	if [ "$action" == "fix" ]
 	then
-		touch --no-create "$filepath"
+		touch -c "$filepath"
 		if [ "$scan_action" = "scan" ]
 		then
 			sudo -u www-data php ./occ files:scan --quiet --path="$relative_filepath"
