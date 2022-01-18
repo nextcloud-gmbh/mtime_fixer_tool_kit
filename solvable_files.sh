@@ -70,7 +70,7 @@ function correct_mtime() {
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir/' AND oc_filecache.path='CONVERT_FROM(DECODE($base64_relative_filepath, 'base64'), 'UTF-8')'"
+						WHERE oc_storages.id='local::$data_dir/' AND oc_filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath', 'base64'), 'UTF-8')"
 			)
 		fi
 	else
