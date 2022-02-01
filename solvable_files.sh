@@ -13,12 +13,6 @@ export db_name="$6"
 export action="${7:-list}"
 export scan_action="${8:-noscan}"
 
-if [ "${data_dir:0:1}" != "/" ]
-then
-	echo "data_dir must be absolute."
-	exit 1
-fi
-
 # 1. Return if fs mtime <= 86400
 # 2. Compute username from filepath
 # 3. Query mtime from the database with the filename and the username
@@ -28,7 +22,6 @@ function correct_mtime() {
 	filepath="$1"
 	relative_filepath="${filepath/#$data_dir\//}"
 	mtime_on_fs="$(stat -c '%Y' "$filepath")"
-	data_dir_with_trailing_slash="$data_dir/"
 
 	username=$relative_filepath
 	while [ "$(dirname "$username")" != "." ]
@@ -66,7 +59,6 @@ function correct_mtime() {
 					"postgresql://$db_user:$db_pwd@$db_host/$db_name" \
 					--tuples-only \
 					--no-align \
-					-E 'UTF-8' \
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
@@ -97,7 +89,6 @@ function correct_mtime() {
 					"postgresql://$db_user:$db_pwd@$db_host/$db_name" \
 					--tuples-only \
 					--no-align \
-					-E 'UTF-8' \
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
