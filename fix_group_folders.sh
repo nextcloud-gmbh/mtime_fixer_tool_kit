@@ -11,12 +11,6 @@ export db_user="$4"
 export db_pwd="$5"
 export db_name="$6"
 
-if [ "${data_dir:0:1}" != "/" ]
-then
-	echo "data_dir must be absolute."
-	exit 1
-fi
-
 if [ "$db_type" == "mysql" ]
 then
 	for filepath in $(mysql \
@@ -31,9 +25,15 @@ then
 			FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
 			WHERE oc_filecache.mtime < 86400 AND \
 			oc_storages.id = 'local::$data_dir/'" \
-			"$db_name" | sed -e "s/.*:://") ; do
+			"$db_name" | sed -e "s/^.*:://")
+	do
+		if [ ! -f "$filepath" ]
+		then
+			echo "Can't find $filepath. Skipping."
+			continue
+		fi
 
-		updated_mtime=$(stat --format=%Y $filepath)
+		updated_mtime=$(stat --format=%Y "$filepath")
 		relative_filepath="${filepath/#$data_dir\//}"
 		base64_relative_filepath="$(printf '%s' "$relative_filepath" | base64)"
 
@@ -59,20 +59,24 @@ then
 		"postgresql://$db_user:$db_pwd@$db_host/$db_name" \
 		--tuples-only \
 		--no-align \
-		-E 'UTF-8' \
 		--command="\
 			SELECT concat(oc_storages.id, oc_filecache.path) \
 			FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
 			WHERE oc_filecache.mtime < 86400 AND \
-			oc_storages.id = 'local::$data_dir/'" | sed -e "s/.*:://") ; do
+			oc_storages.id = 'local::$data_dir/'" | sed -e "s/^.*:://")
+	do
+		if [ ! -f "$filepath" ]
+		then
+			echo "Can't find $filepath. Skipping."
+			continue
+		fi
 
-		updated_mtime=$(stat --format=%Y $filepath)
+		updated_mtime=$(stat --format=%Y "$filepath")
 		relative_filepath="${filepath/#$data_dir\//}"
 		base64_relative_filepath="$(printf '%s' "$relative_filepath" | base64)"
 
 		psql \
 			"postgresql://$db_user:$db_pwd@$db_host/$db_name" \
-			-E 'UTF-8' \
 			--command="\
 				UPDATE oc_filecache \
 				SET mtime=$updated_mtime \

@@ -1,39 +1,8 @@
 # mtime correction tool kit
 
-## Limitations
-
-- Only checks for files with mtime === -3600
-- Only works with MariaDB
-
-## `unsolvable_files.sh`
-
-This script lists files that can not be fixed by the `solvable_files.sh` script. For example files on an external storage.
-
-It compares files found in the database with files found in on the server's file system and prints the diff.
-
-### Usage
-
-```shell
-./unsolvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name>
-```
-
-### Output
-
-```shell
-$ ./unsolvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud
-local::/home/louis/nextcloud_external//(test).md
-local::/home/louis/nextcloud_external//test".md
-local::/home/louis/nextcloud_external//test.md
-```
-
-```shell
-$ ./unsolvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud | wc -l
-3
-```
-
 ## `solvable_files.sh`
 
-This script looks for problematic files on the server's file system
+This script looks for problematic files on the server's file system.
 
 The default behavior is to simply list the solvable files.
 
@@ -81,4 +50,46 @@ $ ./solvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud 
 ```shell
 $ ./server/mtime_scripts/solvable_files.sh "$PWD/server/data/" mysql localhost nextcloud password nextcloud list noscan | wc -l
 10
+```
+
+## `unsolvable_files.sh`
+
+This script lists files that can not be fixed by the `solvable_files.sh` script. For example files on an external storage.
+
+It compares files found in the database with files found in on the server's file system and prints the diff.
+
+### Usage
+
+```shell
+./unsolvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name>
+```
+
+### Output
+
+```shell
+$ ./unsolvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud
+local::/home/louis/nextcloud_external//(test).md
+local::/home/louis/nextcloud_external//test".md
+local::/home/louis/nextcloud_external//test.md
+```
+
+```shell
+$ ./unsolvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud | wc -l
+3
+```
+
+## `fix_group_folders.sh`
+
+This script will simulate a scan for files located in the groupfolder's trash and version folders.
+
+### Usage
+
+```shell
+./fix_group_folders.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name>
+```
+
+### Output
+
+```shell
+./fix_group_folders.sh "$PWD/data/" mysql localhost nextcloud password nextcloud
 ```
