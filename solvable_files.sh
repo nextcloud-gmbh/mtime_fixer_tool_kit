@@ -13,12 +13,6 @@ export db_name="$6"
 export action="${7:-list}"
 export scan_action="${8:-noscan}"
 
-if [ "${data_dir:0:1}" != "/" ]
-then
-	echo "data_dir must be absolute."
-	exit 1
-fi
-
 # 1. Return if fs mtime <= 86400
 # 2. Compute username from filepath
 # 3. Query mtime from the database with the filename and the username

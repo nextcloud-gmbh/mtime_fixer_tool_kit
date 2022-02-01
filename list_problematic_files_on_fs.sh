@@ -6,12 +6,6 @@ set -eu
 
 export data_dir="$(realpath "$1")"
 
-if [ "${data_dir:0:1}" != "/" ]
-then
-	echo "data_dir must be absolute."
-	exit 1
-fi
-
 function check_file() {
 	filepath="$1"
 	relative_filepath="${filepath/#$data_dir\//}"
