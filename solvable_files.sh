@@ -112,7 +112,7 @@ function correct_mtime() {
 
 	if [ "$action" == "fix" ]
 	then
-		touch -c "$filepath"
+		touch -c "$filepath" -m -d "$(date --date @"$mtime_in_db")"
 		if [ "$scan_action" = "scan" ]
 		then
 			sudo -u www-data php ./occ files:scan --quiet --path="$relative_filepath"
