@@ -115,7 +115,7 @@ function correct_mtime() {
 		touch -c "$filepath"
 		if [ "$scan_action" = "scan" ]
 		then
-			sudo -u www-data php ./occ files:scan --quiet --path="$relative_filepath"
+			sudo -u "$(stat -c '%U' ./occ)" php ./occ files:scan --quiet --path="$relative_filepath"
 		fi
 	fi
 }
