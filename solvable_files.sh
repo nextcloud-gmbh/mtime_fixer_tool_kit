@@ -36,6 +36,12 @@ function correct_mtime() {
 
 	if [ "$username" == "__groupfolders" ]
 	then
+		storage="local::$data_dir/"
+		if [ "${#storage}" -gt "64" ]
+		then
+			storage=$(printf '%s' "$storage" | md5sum | awk '{print $1}')
+		fi
+
 		if [ "$db_type" == "mysql" ]
 		then
 			mtime_in_db=$(
@@ -49,7 +55,7 @@ function correct_mtime() {
 					--execute="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir/' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath')" \
+						WHERE oc_storages.id='$storage' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath')" \
 					"$db_name"
 			)
 		elif [ "$db_type" == "pgsql" ]
@@ -62,10 +68,16 @@ function correct_mtime() {
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir/' AND oc_filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath', 'base64'), 'UTF-8')"
+						WHERE oc_storages.id='$storage' AND oc_filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath', 'base64'), 'UTF-8')"
 			)
 		fi
 	else
+		storage="home::$username"
+		if [ "${#storage}" -gt "64" ]
+		then
+			storage=$(printf '%s' "$storage" | md5sum | awk '{print $1}')
+		fi
+
 		if [ "$db_type" == "mysql" ]
 		then
 			mtime_in_db=$(
@@ -79,7 +91,7 @@ function correct_mtime() {
 					--execute="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='home::$username' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath_without_username')" \
+						WHERE oc_storages.id='$storage' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath_without_username')" \
 					"$db_name"
 			)
 		elif [ "$db_type" == "pgsql" ]
@@ -92,7 +104,7 @@ function correct_mtime() {
 					--command="\
 						SELECT mtime
 						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='home::$username' AND oc_filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath_without_username', 'base64'), 'UTF-8')"
+						WHERE oc_storages.id='$storage' AND oc_filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath_without_username', 'base64'), 'UTF-8')"
 			)
 		fi
 	fi
