@@ -20,6 +20,13 @@ export scan_action="${8:-noscan}"
 # 5. Correct the fs mtime with touch
 function correct_mtime() {
 	filepath="$1"
+
+	if [ ! -e "$filepath" ]
+	then
+		echo "File or directory $filepath does not exist. Skipping."
+		return
+	fi
+
 	relative_filepath="${filepath/#$data_dir\//}"
 	mtime_on_fs="$(stat -c '%Y' "$filepath")"
 
@@ -110,13 +117,17 @@ function correct_mtime() {
 
 	echo "$filepath"
 
-	if [ "$action" == "fix" ]
+	if [ "$action" == "fix" ] && [ -e "$filepath" ]
 	then
 		touch -c "$filepath"
 		if [ "$scan_action" = "scan" ]
 		then
 			sudo -u "$(stat -c '%U' ./occ)" php ./occ files:scan --quiet --path="$relative_filepath"
 		fi
+	elif [ ! -e "$filepath" ]
+	then
+		echo "File or directory $filepath does not exist. Skipping."
+		return
 	fi
 }
 export -f correct_mtime
