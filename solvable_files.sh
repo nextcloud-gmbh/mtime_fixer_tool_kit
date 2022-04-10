@@ -1,8 +1,11 @@
 #!/bin/bash
 
+#2022-04-10 platima: Added option to correct date using birthday instead of current system time, failing back to change date if birthday missing
+#2022-04-10 platima: Added additional output when using 'list' mode
+
 set -eu
 
-# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name> <fix,list> <scan,noscan>
+# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name> <fix,list> <scan,noscan> <use_birthday,dont_use_birthday>
 
 export data_dir="$(realpath "$1")"
 export db_type="$2"
@@ -12,12 +15,13 @@ export db_pwd="$5"
 export db_name="$6"
 export action="${7:-list}"
 export scan_action="${8:-noscan}"
+export use_birthday="${9:-dont_use_birthday}"
 
 # 1. Return if fs mtime <= 86400
 # 2. Compute username from filepath
 # 3. Query mtime from the database with the filename and the username
 # 4. Return if mtime_on_fs != mtime_in_db
-# 5. Correct the fs mtime with touch
+# 5. Correct the fs mtime with touch (optionally using the files change date/timestamp)
 function correct_mtime() {
 	filepath="$1"
 
@@ -106,6 +110,7 @@ function correct_mtime() {
 
 	if [ "$mtime_in_db" == "" ]
 	then
+		echo "No mtime in database. File not indexed. Skipping $filepath"
 		return
 	fi
 
@@ -115,15 +120,33 @@ function correct_mtime() {
 		return
 	fi
 
-	echo "$filepath"
-
 	if [ "$action" == "fix" ] && [ -e "$filepath" ]
 	then
-		touch -c "$filepath"
+		if [ $use_birthday == "use_birthday" ]
+		then
+			newdate=$(stat -c "%w" "$filepath")
+
+			if [ $newdate == "-" ]
+			then
+				echo "$filepath has no birthday. Using change date."
+				newdate=$(stat -c "%z" "$filepath")
+			fi
+
+			echo touch -c -d "$newdate" "$filepath" 
+		else
+			echo touch -c "$filepath"
+		fi
+
+		echo "\"$filepath\" done"
+
 		if [ "$scan_action" = "scan" ]
 		then
 			sudo -u "$(stat -c '%U' ./occ)" php ./occ files:scan --quiet --path="$relative_filepath"
 		fi
+	elif [ "$action" == "list" ] && [ -e "$filepath" ]
+	then
+		echo -n Would update \"$filepath\" to\ 
+		if [ $use_birthday == "use_birthday" ]; then echo birthday; else echo today; fi
 	elif [ ! -e "$filepath" ]
 	then
 		echo "File or directory $filepath does not exist. Skipping."
