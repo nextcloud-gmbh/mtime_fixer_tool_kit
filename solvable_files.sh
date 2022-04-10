@@ -2,10 +2,11 @@
 
 #2022-04-10 platima: Added option to correct date using birthday instead of current system time, failing back to change date if birthday missing
 #2022-04-10 platima: Added additional output when using 'list' mode
+#2022-04-10 platima: Addded verbose option
 
 set -eu
 
-# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name> <fix,list> <scan,noscan> <use_birthday,dont_use_birthday>
+# Usage: ./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name> <fix,list> <scan,noscan> <use_birthday,dont_use_birthday> <verbose,noverbose>
 
 export data_dir="$(realpath "$1")"
 export db_type="$2"
@@ -16,6 +17,7 @@ export db_name="$6"
 export action="${7:-list}"
 export scan_action="${8:-noscan}"
 export use_birthday="${9:-dont_use_birthday}"
+export verbose="${10:-noverbose}"
 
 # 1. Return if fs mtime <= 86400
 # 2. Compute username from filepath
@@ -122,24 +124,27 @@ function correct_mtime() {
 
 	if [ "$action" == "fix" ] && [ -e "$filepath" ]
 	then
-		if [ $use_birthday == "use_birthday" ]
+		if [ "$use_birthday" == "use_birthday" ]
 		then
 			newdate=$(stat -c "%w" "$filepath")
 
-			if [ $newdate == "-" ]
+			if [ "$newdate" == "-" ]
 			then
 				echo "$filepath has no birthday. Using change date."
 				newdate=$(stat -c "%z" "$filepath")
 			fi
 
-			echo touch -c -d "$newdate" "$filepath" 
+			touch -c -d "$newdate" "$filepath" 
 		else
-			echo touch -c "$filepath"
+			touch -c "$filepath"
 		fi
 
-		echo "\"$filepath\" done"
+		if [ "$verbose" == "verbose" ]
+		then
+			echo mtime for \"$filepath\" updated to \"$(stat -c "%y" "$filepath")\"
+		fi
 
-		if [ "$scan_action" = "scan" ]
+		if [ "$scan_action" == "scan" ]
 		then
 			sudo -u "$(stat -c '%U' ./occ)" php ./occ files:scan --quiet --path="$relative_filepath"
 		fi
