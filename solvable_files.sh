@@ -146,6 +146,7 @@ function correct_mtime() {
 
 		if [ "$scan_action" == "scan" ]
 		then
+			if [ ! -e "./occ" ]; then echo "Sorry please run this from the directory containing the 'occ' script"; exit; fi
 			sudo -u "$(stat -c '%U' ./occ)" php ./occ files:scan --quiet --path="$relative_filepath"
 		fi
 	elif [ "$action" == "list" ] && [ -e "$filepath" ]
