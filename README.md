@@ -28,23 +28,29 @@ Group folders are handled specially by checking if the username equal `__groupfo
 ### Usage
 
 ```shell
-./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name> [<fix|list>] [<scan|noscan>]
+./solvable_files.sh <data_dir> <mysql|pgsql> <db_host> <db_user> <db_pwd> <db_name> [<fix|list>] [<scan|noscan>] [<use_birthday,dont_use_birthday>] [<verbose,noverbose>]
 ```
+
+#### use_birthday
+This option will use the files 'birthday' from `stat` if available, else it'll use ctime (last changed) to restore mtime, as opposed to using the current date/timestamp.
+
+#### verbose
+The verbose option will give more output on what the script is doing, and which datestamps it's using.
 
 ### Output
 
 ```shell
-$ ./solvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud list noscan
-/home/louis/workspace/nextcloud/server/data/__groupfolders/1/(test).md
-/home/louis/workspace/nextcloud/server/data/__groupfolders/1/test".md
-/home/louis/workspace/nextcloud/server/data/__groupfolders/1/test.md
-/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/(test).md
-/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/test".md
-/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/test.md
-/home/louis/workspace/nextcloud/server/data/admin/files/welcome.txt
-/home/louis/workspace/nextcloud/server/data/admin/files/shared test/(test).md
-/home/louis/workspace/nextcloud/server/data/admin/files/shared test/test".md
-/home/louis/workspace/nextcloud/server/data/admin/files/shared test/test.md
+$ ./solvable_files.sh "$PWD/data/" mysql localhost nextcloud password nextcloud list noscan use_birthday verbose
+mtime for "/home/louis/workspace/nextcloud/server/data/__groupfolders/1/(test).md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/__groupfolders/1/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/__groupfolders/1/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/(test).md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/welcome.txt" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/shared test/(test).md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/shared test/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/shared test/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
 ```
 
 ```shell
