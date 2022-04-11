@@ -152,7 +152,12 @@ function correct_mtime() {
 	elif [ "$action" == "list" ] && [ -e "$filepath" ]
 	then
 		echo -n Would update \"$filepath\" to\ 
-		if [ $use_birthday == "use_birthday" ]; then echo birthday; else echo today; fi
+		if [ $use_birthday == "use_birthday" ]
+		then
+			echo birthday
+		else
+			echo today
+		fi
 	elif [ ! -e "$filepath" ]
 	then
 		echo "File or directory $filepath does not exist. Skipping."
