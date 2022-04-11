@@ -3,6 +3,7 @@
 #2022-04-10 platima: Added option to correct date using birthday instead of current system time, failing back to change date if birthday missing
 #2022-04-10 platima: Added additional output when using 'list' mode
 #2022-04-10 platima: Addded verbose option
+#2022-04-11 platima: Updated to confirm to code style and wrapped other outputs in verbose qualifier
 
 set -eu
 
@@ -112,7 +113,10 @@ function correct_mtime() {
 
 	if [ "$mtime_in_db" == "" ]
 	then
-		echo "No mtime in database. File not indexed. Skipping $filepath"
+		if [ "$verbose" == "verbose" ]
+		then
+			echo "No mtime in database. File not indexed. Skipping $filepath"
+		fi
 		return
 	fi
 
@@ -130,7 +134,11 @@ function correct_mtime() {
 
 			if [ "$newdate" == "-" ]
 			then
-				echo "$filepath has no birthday. Using change date."
+				if [ "$verbose" == "verbose" ]
+				then
+					echo "$filepath has no birthday. Using change date."
+				fi
+				
 				newdate=$(stat -c "%z" "$filepath")
 			fi
 
@@ -148,8 +156,8 @@ function correct_mtime() {
 		then
 			if [ ! -e "./occ" ]
 			then
-				echo "Please run this from the directory containing the 'occ' script"
-				exit 1
+				echo "Please run this from the directory containing the 'occ' script if using the 'scan' option"
+				return
 			fi
 			sudo -u "$(stat -c '%U' ./occ)" php ./occ files:scan --quiet --path="$relative_filepath"
 		fi
