@@ -46,10 +46,10 @@ mtime for "/home/louis/workspace/nextcloud/server/data/__groupfolders/1/test.md"
 mtime for "/home/louis/workspace/nextcloud/server/data/__groupfolders/1/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
 mtime for "/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/(test).md" updated to "2022-01-09 12:05:07.358561800 +0200"
 mtime for "/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
-mtime for "/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/test.md updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/alice/files_trashbin/files/storage trash.d1639576034/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
 mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/welcome.txt" updated to "2022-01-09 12:05:07.358561800 +0200"
 mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/shared test/(test).md" updated to "2022-01-09 12:05:07.358561800 +0200"
-mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/shared test/test".md" updated to "2022-01-09 12:05:07.358561800 +0200"
+mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/shared test/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
 mtime for "/home/louis/workspace/nextcloud/server/data/admin/files/shared test/test.md" updated to "2022-01-09 12:05:07.358561800 +0200"
 ```
 
