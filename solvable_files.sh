@@ -20,6 +20,9 @@ export scan_action="${8:-noscan}"
 export use_birthday="${9:-dont_use_birthday}"
 export verbose="${10:-noverbose}"
 
+# In case you're using a different database table prefix, set this to your config's `dbtableprefix` value. 
+export dbtableprefix="oc_"
+
 # 1. Return if fs mtime <= 86400
 # 2. Compute username from filepath
 # 3. Query mtime from the database with the filename and the username
@@ -62,8 +65,8 @@ function correct_mtime() {
 					--default-character-set=utf8 \
 					--execute="\
 						SELECT mtime
-						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir/' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath')" \
+						FROM ${dbtableprefix}storages JOIN ${dbtableprefix}filecache ON ${dbtableprefix}storages.numeric_id = ${dbtableprefix}filecache.storage \
+						WHERE ${dbtableprefix}storages.id='local::$data_dir/' AND ${dbtableprefix}filecache.path=FROM_BASE64('$base64_relative_filepath')" \
 					"$db_name"
 			)
 		elif [ "$db_type" == "pgsql" ]
@@ -75,8 +78,8 @@ function correct_mtime() {
 					--no-align \
 					--command="\
 						SELECT mtime
-						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='local::$data_dir/' AND oc_filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath', 'base64'), 'UTF-8')"
+						FROM ${dbtableprefix}storages JOIN ${dbtableprefix}filecache ON ${dbtableprefix}storages.numeric_id = ${dbtableprefix}filecache.storage \
+						WHERE ${dbtableprefix}storages.id='local::$data_dir/' AND ${dbtableprefix}filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath', 'base64'), 'UTF-8')"
 			)
 		fi
 	else
@@ -92,8 +95,8 @@ function correct_mtime() {
 					--default-character-set=utf8 \
 					--execute="\
 						SELECT mtime
-						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='home::$username' AND oc_filecache.path=FROM_BASE64('$base64_relative_filepath_without_username')" \
+						FROM ${dbtableprefix}storages JOIN ${dbtableprefix}filecache ON ${dbtableprefix}storages.numeric_id = ${dbtableprefix}filecache.storage \
+						WHERE ${dbtableprefix}storages.id='home::$username' AND ${dbtableprefix}filecache.path=FROM_BASE64('$base64_relative_filepath_without_username')" \
 					"$db_name"
 			)
 		elif [ "$db_type" == "pgsql" ]
@@ -105,8 +108,8 @@ function correct_mtime() {
 					--no-align \
 					--command="\
 						SELECT mtime
-						FROM oc_storages JOIN oc_filecache ON oc_storages.numeric_id = oc_filecache.storage \
-						WHERE oc_storages.id='home::$username' AND oc_filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath_without_username', 'base64'), 'UTF-8')"
+						FROM ${dbtableprefix}storages JOIN ${dbtableprefix}filecache ON ${dbtableprefix}storages.numeric_id = ${dbtableprefix}filecache.storage \
+						WHERE ${dbtableprefix}storages.id='home::$username' AND ${dbtableprefix}filecache.path=CONVERT_FROM(DECODE('$base64_relative_filepath_without_username', 'base64'), 'UTF-8')"
 			)
 		fi
 	fi
