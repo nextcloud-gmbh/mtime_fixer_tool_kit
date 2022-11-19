@@ -181,4 +181,4 @@ function correct_mtime() {
 }
 export -f correct_mtime
 
-find "$data_dir" -type f ! -newermt "@86400" -exec bash -c 'correct_mtime "$0"' {} \;
+find "$data_dir" -type f ! -newermt "1 day" -exec bash -c 'correct_mtime "$0"' {} \;
